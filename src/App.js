@@ -7,7 +7,7 @@ export default class App extends Component {
     return (
       <div>
         <Navbar/>
-        <Newsbox ps={12} />
+        <Newsbox category="science"/>
       </div>
     )
   }

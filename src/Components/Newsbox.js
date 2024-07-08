@@ -1,9 +1,23 @@
 import React, { Component } from "react";
 import Newsitem from "./Newsitem";
 import LoadingSpinner from "./LoadingSpinner";
+import PropTypes from 'prop-types'
 
 export class Newsbox extends Component {
-    constructor(){                  //Constructor must have super() method or else it will give error
+  static defaultProps = {                 //Default prop types of class based component
+    country : "in",
+    pagesize : 9,
+    category : "general"
+  
+  }
+  static propTypes = {                    //Proptypes of class based component
+    country:PropTypes.string,
+    pagesize:PropTypes.number,
+    category:PropTypes.string
+  }
+
+
+    constructor(){                  
         super();
         this.state = {
             articles : [],
@@ -12,9 +26,9 @@ export class Newsbox extends Component {
     }
 
     async componentDidMount(){
-      await this.setState({pagesize:this.props.ps});
+      await this.setState({pagesize:this.props.pagesize});
       await this.setState({page:1})
-      let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page}&pagesize=${this.state.pagesize}`;
+      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page}&pagesize=${this.state.pagesize}`;
       this.setState({loading:true});
       let data = await fetch(url);
       let parsedData = await data.json();
@@ -26,7 +40,7 @@ export class Newsbox extends Component {
     }
     nextpage = async () =>{
       if(this.state.page < Math.ceil(this.state.totalresult/this.state.pagesize)){
-        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page + 1}&pagesize=${this.state.pagesize}`;
+        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page + 1}&pagesize=${this.state.pagesize}`;
         this.setState({loading:true});
         let data = await fetch(url);
         let parsedData = await data.json();
@@ -39,7 +53,7 @@ export class Newsbox extends Component {
     }
     prevpage = async () =>{
       if(this.state.page > 1){
-        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page - 1}&pagesize=${this.state.pagesize}`;
+        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page - 1}&pagesize=${this.state.pagesize}`;
         this.setState({loading:true});
         let data = await fetch(url);
         let parsedData = await data.json();
