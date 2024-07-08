@@ -15,8 +15,6 @@ export class Newsbox extends Component {
     pagesize:PropTypes.number,
     category:PropTypes.string
   }
-
-
     constructor(){                  
         super();
         this.state = {
@@ -25,44 +23,31 @@ export class Newsbox extends Component {
         };
     }
 
-    async componentDidMount(){
-      await this.setState({pagesize:this.props.pagesize});
-      await this.setState({page:1})
-      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page}&pagesize=${this.state.pagesize}`;
+    async updateNews(pagechange){
+      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page + pagechange}&pagesize=${this.state.pagesize}`;
       this.setState({loading:true});
       let data = await fetch(url);
       let parsedData = await data.json();
       this.setState({
         articles:parsedData.articles,
+        loading:false,
         totalresult:parsedData.totalResults,
-        loading:false
+        page:this.state.page+pagechange
       });
+    }
+    async componentDidMount(){
+      await this.setState({pagesize:this.props.pagesize});
+      await this.setState({page:1})
+      this.updateNews(0);
     }
     nextpage = async () =>{
       if(this.state.page < Math.ceil(this.state.totalresult/this.state.pagesize)){
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page + 1}&pagesize=${this.state.pagesize}`;
-        this.setState({loading:true});
-        let data = await fetch(url);
-        let parsedData = await data.json();
-        this.setState({
-          page : this.state.page + 1,
-          articles : parsedData.articles,
-          loading:false
-        })
+        this.updateNews(1);
       }
     }
     prevpage = async () =>{
       if(this.state.page > 1){
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page - 1}&pagesize=${this.state.pagesize}`;
-        this.setState({loading:true});
-        let data = await fetch(url);
-        let parsedData = await data.json();
-        console.log(parsedData);
-        this.setState({
-          page : this.state.page - 1,
-          articles : parsedData.articles,
-          loading:false
-        })
+        this.updateNews(-1);
       }
     }
 
@@ -74,7 +59,7 @@ export class Newsbox extends Component {
         <div className="row">
           {!this.state.loading && this.state.articles.map((element)=>{
             return <div className="col-md-4" key={element.url}>
-            <Newsitem title={element.title?element.title:""} description={element.description?element.description:""} newsurl={element.url} imgurl={element.urlToImage?element.urlToImage:"https://resize.indiatvnews.com/en/resize/newbucket/1200_-/2024/07/wdwer-1719912897.jpg"}/>
+            <Newsitem title={element.title?element.title:""} description={element.description?element.description:""} newsurl={element.url} author={element.author?element.author:"Unknown"} date={element.publishedAt}  imgurl={element.urlToImage?element.urlToImage:"https://resize.indiatvnews.com/en/resize/newbucket/1200_-/2024/07/wdwer-1719912897.jpg"}/>
             </div>
           })}
 
