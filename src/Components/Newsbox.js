@@ -25,16 +25,20 @@ export class Newsbox extends Component {
     }
 
     async updateNews(pagechange){
-      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page + pagechange}&pagesize=${this.state.pagesize}`;
+      this.props.setProgress(10);
+      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=${this.props.apiKey}&page=${this.state.page + pagechange}&pagesize=${this.state.pagesize}`;
       this.setState({loading:true});
       let data = await fetch(url);
+      this.props.setProgress(50);
       let parsedData = await data.json();
+      this.props.setProgress(80);
       this.setState({
         articles:parsedData.articles,
         loading:false,
         totalResults:parsedData.totalResults,
         page:this.state.page+pagechange,
       });
+      this.props.setProgress(100);
     }
     async componentDidMount(){
       await this.setState({pagesize:this.props.pagesize,totalResults:1});
@@ -42,7 +46,7 @@ export class Newsbox extends Component {
       this.updateNews(0);
     }
     fetchData = async ()=>{
-      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=5855c9412ccf4b6d841272ac6521edb8&page=${this.state.page + 1}&pagesize=${this.state.pagesize}`;
+      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=${this.props.apiKey}&page=${this.state.page + 1}&pagesize=${this.state.pagesize}`;
       this.setState({loading:true});
       let data = await fetch(url);
       let parsedData = await data.json();
@@ -58,13 +62,12 @@ export class Newsbox extends Component {
     return (
       <>
         <h3 style={{textAlign:"center", padding:"10px"}}>News-App | Top {`${this.props.category}`.slice(0,1).toUpperCase()}{`${this.props.category}`.slice(1)} Headlines</h3>
-
         <InfiniteScroll
           dataLength={this.state.articles.length} //This is important field to render the next data
           next={this.fetchData}
           hasMore={this.state.page*this.state.pagesize < this.state.totalResults}
           loader={<LoadingSpinner/>}
-          endMessage={<p style={{ textAlign: 'center' }}>
+          endMessage={!this.state.loading && <p style={{ textAlign: 'center', marginTop:"15px"}}>
               <b>Yay! You have seen it all</b>
           </p>}>
         <div className="container">
